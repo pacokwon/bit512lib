@@ -7,27 +7,6 @@
 int512_t int_to_int512(int num)
 {
 	int512_t result;
-	/* l = sizeof(i) / sizeof(int); */
-	/* int j = 0; */
-
-	/* char hexint[l] = { 0, }; */
-	/* while (1) { */
-	/* 	int rem = i % 16; */
-
-	/* 	if (rem < 10) { */
-	/* 		char[j] = 48 + rem; */
-	/* 	} */
-	/* 	else { */
-	/* 		char[j] = 65 + (rem - 10); */
-	/* 	} */
-
-	/* 	j++; */
-	/* 	i = i / 16; */
-
-	/* 	if (i = 0) */
-	/* 		break; */
-	/* } */
-
     int isNegative = 0;
     if (num < 0) {
         num *= -1;
@@ -112,13 +91,13 @@ int512_t int512_add(int512_t lhs, int512_t rhs)
 
     uint8_t ltmp, rtmp;
     uint8_t carry = 0;
-    for (int i = 0; i < 15; i++) {
+    for (int i = 0; i < 16; i++) {
         uint32_t mask = 0xFF;
         result.data[i] = 0;
         for (int j = 0; j < 4; j++) {
             result.data[i] <<= 8;
-            ltmp = lhs.data[i] & (mask << (3 - j));
-            rtmp = rhs.data[i] & (mask << (3 - j));
+            ltmp = (lhs.data[i] >> 8 * (3 - j)) & mask;
+            rtmp = (rhs.data[i] >> 8 * (3 - j)) & mask;
             result.data[i] += (ltmp + rtmp + carry) & mask;
             carry = (ltmp + rtmp) >> 8;
         }

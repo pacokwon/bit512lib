@@ -195,10 +195,20 @@ int512_t int512_div(int512_t lhs, int512_t rhs)
 
 int512_t int512_mod(int512_t lhs, int512_t rhs)
 {
-	int512_t result;
+    bool lsign = get_sign(lhs);
+    bool rsign = get_sign(rhs);
 
+    if (lsign)
+        lhs = negative(lhs);
 
-	// TODO: Put something!
+    if (rsign)
+        rhs = negative(rhs);
 
-	return result;
+    // lhs = q * rhs + r
+    // r = lhs - q * rhs
+
+    int512_t quotient = int512_div(lhs, rhs);
+    int512_t rem = int512_add(lhs, negative(int512_mul(quotient, rhs)));
+
+    return lsign ^ rsign ? negative(rem) : rem;
 }

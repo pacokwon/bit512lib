@@ -155,14 +155,48 @@ int512_t int512_div(int512_t lhs, int512_t rhs)
 {
 	int512_t result;
 
-	// TODO: Put something!
+    int512_t zero = int_to_int512(0);
+    int512_t one = int_to_int512(1);
 
-	return result;
+    bool lsign = get_sign(lhs);
+    bool rsign = get_sign(rhs);
+
+    // positive on lhs, negative on rhs
+    if (lsign) {
+        if (rsign) {    // l is -, r is -
+            lhs = negative(lhs);
+        } else {        // l is -, r is +
+            // using result as a temporary variable.
+            // might want to make a dedicated variable if desired
+            result = lhs;
+            lhs = rhs;
+            rhs = result;
+        }
+    } else {
+        if (rsign) {}   // l is +, r is -, do nothing
+        else {          // l is +, r is +
+            rhs = negative(rhs);
+        }
+    }
+
+    // set result to -1
+    for (int i = 0; i < 16; i++)
+        result.data[i] = 0xFFFFFFFF;
+
+    // while (lhs >= zero)
+    while (!int512_greater(zero, lhs)) {
+        lhs = int512_add(lhs, rhs);
+        result = int512_add(result, one);
+    }
+
+
+	return lsign ^ rsign ? negative(result) : result;
 }
 
 int512_t int512_mod(int512_t lhs, int512_t rhs)
 {
 	int512_t result;
+
 
 	// TODO: Put something!
 

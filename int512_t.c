@@ -23,26 +23,22 @@ int512_t int_to_int512(int num)
             tmp += (num % 0x10) * 0x10;
             num /= 0x10;
             result.data[i] += tmp;
-            /* printf("%04x ", result.data[i]); */
         }
     }
 
-/*     if (isNegative) { */
-/*         // complement */
-/*         for (int i = 0; i < 16; i++) { */
-/*             result.data[i] = ~result.data[i]; */
-/*         } */
+    if (isNegative) {
+        // complement
+        for (int i = 0; i < 16; i++) {
+            result.data[i] = ~result.data[i];
+        }
 
-/*         for (int j = 0; j < 16; j++) { */
-/*             printf("%08x\n", result.data[j]); */
-/*         } */
-/*         // add 1 */
-/*         int carry = 1; */
-/*         for (int i = 15; i >= 0; i--) { */
+        int512_t one;
+        for (int i = 0; i < 16; i++)
+            one.data[i] = 0;
+        one.data[0] = (0x1 << 24);
 
-/*             result.data[i] += 1; */
-/*         } */
-/*     } */
+        result = int512_add(result, one);
+    }
 
 	return result;
 }

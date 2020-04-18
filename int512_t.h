@@ -14,7 +14,11 @@ int512_t int_to_int512(int i);
 
 bool int512_equal(const int512_t lhs, const int512_t rhs);
 bool int512_greater(const int512_t lhs, const int512_t rhs);
+bool get_sign(int512_t num);
+uint8_t get_bit(int512_t num, int n);
+void set_bit(pint512_t num, int n, uint8_t bit);
 
+int512_t int512_negative(int512_t num);
 int512_t int512_add(int512_t lhs, int512_t rhs);
 int512_t int512_mul(int512_t lhs, int512_t rhs);
 int512_t int512_div(int512_t lhs, int512_t rhs);

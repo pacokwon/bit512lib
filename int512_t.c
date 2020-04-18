@@ -4,9 +4,42 @@
 #include <stdlib.h>
 #include <string.h>
 
+uint8_t get_bit(int512_t num, int n) {
+    /* n: 0 ~ 511 */
+    int array_idx = 15 - n / 32;
+    int nth = n % 32;
+    int gauss_shift = nth / 8 * 8;
+
+    return (num.data[array_idx] >> gauss_shift) >> (7 - (nth - gauss_shift)) & 0x1;
+}
+
+void set_bit(pint512_t num, int n, uint8_t bit) {
+    int array_idx = 15 - n / 32;
+    int nth = n % 32;
+    int gauss_shift = nth / 8 * 8;
+    num->data[array_idx] |= bit << (gauss_shift + 7 - (nth - gauss_shift));
+}
+
+bool get_sign(int512_t num) {
+    return get_bit(num, 0);
+}
+
+int512_t negative(int512_t num) {
+    for (int i = 0; i < 16; i++)
+        num.data[i] = ~num.data[i];
+
+    int512_t one;
+    for (int i = 0; i < 16; i++)
+        one.data[i] = 0;
+    one.data[0] = (0x1 << 24);
+
+    return int512_add(num, one);
+}
+
 int512_t int_to_int512(int num)
 {
 	int512_t result;
+
     int isNegative = 0;
     if (num < 0) {
         num *= -1;
@@ -15,7 +48,6 @@ int512_t int_to_int512(int num)
 
     for (int i = 0; i < 16; i++) {
         result.data[i] = 0;
-        /* printf("i: %d\n", i); */
         for (int j = 0; j < 4; j++) {
             result.data[i] *= 0x100;
             uint32_t tmp = num % 0x10;
@@ -46,8 +78,6 @@ int512_t int_to_int512(int num)
 bool int512_equal(const int512_t lhs, const int512_t rhs)
 {
     for (int i = 0; i < 16; i++) {
-        /* printf("%08X %08X %08X\n", lhs.data[i], rhs.data[i], lhs.data[i] ^ rhs.data[i]); */
-        /* printf("%08X %08X\n", lhs.data[i], rhs.data[i]); */
         if ((lhs.data[i] ^ rhs.data[i]) != 0)
             return false;
     }
@@ -74,7 +104,7 @@ bool int512_greater(const int512_t lhs, const int512_t rhs)
             if (lmask != rmask)
                 return lmask > rmask;
 
-            mask = mask << 8;
+            mask <<= 8;
         }
     }
 
@@ -105,8 +135,18 @@ int512_t int512_add(int512_t lhs, int512_t rhs)
 int512_t int512_mul(int512_t lhs, int512_t rhs)
 {
 	int512_t result;
+    for (int i = 0; i < 16; i++)
+        result.data[i] = 0;
 
-	// TODO: Put something!
+    int carry = 0;
+    for (int i = 0; i < 512; i++) {
+        int sum = carry;
+        for (int k = 0; k <= i; k++) {
+            sum += get_bit(lhs, 511 - k) & get_bit(rhs, 511 - (i - k));
+        }
+        set_bit(&result, 511 - i, sum % 2);
+        carry = sum / 2;
+    }
 
 	return result;
 }

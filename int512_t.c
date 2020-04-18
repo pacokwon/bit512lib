@@ -91,15 +91,15 @@ int512_t int512_add(int512_t lhs, int512_t rhs)
 
     uint8_t ltmp, rtmp;
     uint8_t carry = 0;
+    uint8_t mask = 0xFF;
     for (int i = 0; i < 16; i++) {
-        uint32_t mask = 0xFF;
         result.data[i] = 0;
         for (int j = 0; j < 4; j++) {
             result.data[i] <<= 8;
             ltmp = (lhs.data[i] >> 8 * (3 - j)) & mask;
             rtmp = (rhs.data[i] >> 8 * (3 - j)) & mask;
             result.data[i] += (ltmp + rtmp + carry) & mask;
-            carry = (ltmp + rtmp) >> 8;
+            carry = (ltmp + rtmp + carry) >> 8;
         }
     }
 
